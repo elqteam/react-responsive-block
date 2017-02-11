@@ -1,0 +1,26 @@
+{
+  "name": "react-responsive-block",
+  "license": "MIT",
+  "version": "1.0.0",
+  "dependencies": {
+    "elq": "^0.4.1",
+    "react-dom": "^15.3.2",
+    "react": "^15.3.2"
+  },
+  "devDependencies": {
+    "babel-preset-es2015": "^6.5.0",
+    "babel-preset-react": "^6.5.0",
+    "browserify": "^13.0.0"
+  },
+  "babel": {
+    "presets": [
+      "es2015",
+      "react"
+    ]
+  },
+  "browserify": {
+    "transform": [
+      "babelify"
+    ]
+  }
+}
