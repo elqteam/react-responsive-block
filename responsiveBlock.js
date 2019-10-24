@@ -1,42 +1,25 @@
+import _ from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import createReactClass from 'create-react-class';
 
-function areEqualShallow(a, b) {
-    for(var key in a) {
-        if(!(key in b) || a[key] !== b[key]) {
-            return false;
-        }
-    }
-    for(var key in b) {
-        if(!(key in a) || a[key] !== b[key]) {
-            return false;
-        }
-    }
-    return true;
-}
-
-export default function (options) {
+export default function(options) {
     var elq = options.elq;
 
     if (!elq) {
         throw new Error('ResponsiveBlock: ELQ is required.');
     }
 
-    return React.createClass({
-        getDefaultProps: function () {
-            return {
-                sizeBreakpoints: {}
-            };
-        },
-        getInitialState: function () {
+    var ResponsiveBlock = createReactClass({
+        getInitialState: function() {
             this.validateBreakpoints(this.props.sizeBreakpoints);
 
             return {
-                size: null
+                size: null,
             };
         },
-        componentWillReceiveProps: function (nextProps) {
-            if (areEqualShallow(this.props.sizeBreakpoints, nextProps.sizeBreakpoints)) {
+        componentWillReceiveProps: function(nextProps) {
+            if (_.isEqual(this.props.sizeBreakpoints, nextProps.sizeBreakpoints)) {
                 return;
             }
 
@@ -46,32 +29,42 @@ export default function (options) {
             this.attachBreakpointStatesChangedHandler();
             elq.activate(this.refs.container);
         },
-        render: function () {
+        render: function() {
             // Since ELQ cannot be started before the first render, there will be no state.size until shortly after (when the second render is triggered).
             // Delay the rendering of the content until there is a size.
             var content;
             if (this.state.size) {
-                content = React.Children.map(this.props.children, function (child) {
-                    return React.cloneElement(child, {
-                        size: this.state.size
-                    });
-                }, this);
+                content = React.Children.map(
+                  this.props.children,
+                  function(child) {
+                      return React.cloneElement(child, {
+                          size: this.state.size,
+                      });
+                  },
+                  this,
+                );
             }
 
             var breakpoints = this.getBreakpoints().join(' ');
 
             return (
-                <div className={this.props.className} ref="container" data-elq-breakpoints data-elq-breakpoints-widths={breakpoints}>
-                    {content}
-                    <div style={{position: 'absolute', visibility: 'hidden'}} ref="renderDetector"></div>
-                </div>
+              <div
+                className={this.props.className}
+                ref="container"
+                data-elq-breakpoints
+                data-elq-breakpoints-widths={breakpoints}
+              >
+                  {content}
+                  <div style={{ position: 'absolute', visibility: 'hidden' }} ref="renderDetector"></div>
+              </div>
             );
         },
-        componentDidMount: function () {
+        componentDidMount: function() {
             function isDetached(element) {
                 function isInDocument(element) {
                     return element === element.ownerDocument.body || element.ownerDocument.body.contains(element);
                 }
+
                 return !isInDocument(element);
             }
 
@@ -83,7 +76,8 @@ export default function (options) {
                 var alteredParents = [];
 
                 var parent = el;
-                while (parent = parent.parentElement) { // eslint-disable-line no-cond-assign
+                while ((parent = parent.parentElement)) {
+                    // eslint-disable-line no-cond-assign
                     if (!isUnrendered(parent)) {
                         break;
                     }
@@ -93,7 +87,7 @@ export default function (options) {
                         parent.style.display = 'block';
                         alteredParents.push({
                             el: parent,
-                            styleDisplay: styleDisplay
+                            styleDisplay: styleDisplay,
                         });
                     }
                 }
@@ -104,7 +98,7 @@ export default function (options) {
 
                 callback();
 
-                alteredParents.reverse().forEach(function (parent) {
+                alteredParents.reverse().forEach(function(parent) {
                     var el = parent.el;
                     var styleDisplay = parent.styleDisplay || ''; // Default to empty string so that the value is removed from the inline style. Null is not accepted by IE.
                     el.style.display = styleDisplay;
@@ -136,17 +130,23 @@ export default function (options) {
 
             var node = ReactDOM.findDOMNode(this);
 
-            ensureAttached(node, function whileAttached() {
-                ensureRendered(node, function whileRendered() {
-                    elq.activate(this.refs.container);
-                }.bind(this));
-            }.bind(this));
+            ensureAttached(
+              node,
+              function whileAttached() {
+                  ensureRendered(
+                    node,
+                    function whileRendered() {
+                        elq.activate(this.refs.container);
+                    }.bind(this),
+                  );
+              }.bind(this),
+            );
         },
-        componentWillUnmount: function () {
+        componentWillUnmount: function() {
             elq.deactivate(this.refs.container);
         },
-        validateBreakpoints: function (sizeBreakpoints) {
-            var breakpoints = Object.keys(sizeBreakpoints).map(function (k) {
+        validateBreakpoints: function(sizeBreakpoints) {
+            var breakpoints = Object.keys(sizeBreakpoints).map(function(k) {
                 return sizeBreakpoints[k];
             }, this);
 
@@ -155,11 +155,13 @@ export default function (options) {
             var overallUnit;
 
             if (!breakpoints.length) {
-                console.warn('ResponsiveBlock: There are no size breakpoints defined. If you do not need breakpoints, then use a <div> instead.'); // eslint-disable-line no-console
+                console.warn(
+                  'ResponsiveBlock: There are no size breakpoints defined. If you do not need breakpoints, then use a <div> instead.',
+                ); // eslint-disable-line no-console
                 return;
             }
 
-            breakpoints.forEach(function (bp) {
+            breakpoints.forEach(function(bp) {
                 if (!bp) {
                     // Any falsy value is treated as start (since 0 is falsy).
                     foundStart = true;
@@ -182,51 +184,67 @@ export default function (options) {
             });
 
             if (!foundStart) {
-                throw new Error('ResponsiveBlock: You need to define a starting size breakpoint. For example, \"small: 0\". Given size breakpoints:', this.props.sizeBreakpoints);
+                throw new Error(
+                  'ResponsiveBlock: You need to define a starting size breakpoint. For example, "small: 0". Given size breakpoints:',
+                  this.props.sizeBreakpoints,
+                );
             }
 
             if (!sameUnit) {
-                throw new Error('ResponsiveBlock: All breakpoints need to have the same unit. Given size breakpoints:', this.props.sizeBreakpoints);
+                throw new Error(
+                  'ResponsiveBlock: All breakpoints need to have the same unit. Given size breakpoints:',
+                  this.props.sizeBreakpoints,
+                );
             }
         },
-        getOrderedSizes: function () {
-            var breakpoints = Object.keys(this.props.sizeBreakpoints).map(function (k) {
+        getOrderedSizes: function() {
+            var breakpoints = Object.keys(this.props.sizeBreakpoints).map(function(k) {
                 var bp = parseInt(this.props.sizeBreakpoints[k] || 0, 10);
                 var size = k;
                 return {
                     size: size,
-                    breakpoint: bp
+                    breakpoint: bp,
                 };
             }, this);
 
-            breakpoints.sort(function (a, b) {
+            breakpoints.sort(function(a, b) {
                 return a.bp - b.bp;
             });
 
-            return breakpoints.map(function (tuple) {
+            return breakpoints.map(function(tuple) {
                 return tuple.size;
             });
         },
-        getBreakpoints: function () {
-            return Object.keys(this.props.sizeBreakpoints).map(function (k) {
+        getBreakpoints: function() {
+            return Object.keys(this.props.sizeBreakpoints).map(function(k) {
                 return this.props.sizeBreakpoints[k] || 0;
             }, this);
         },
-        attachBreakpointStatesChangedHandler: function () {
+        attachBreakpointStatesChangedHandler: function() {
             var sizes = this.getOrderedSizes();
 
-            elq.listenTo(this.refs.container, 'breakpointStatesChanged', function (e, breakpointStates) {
-                var size = sizes[0];
-                breakpointStates.width.forEach(function (state, index) {
-                    if (state.over) {
-                        size = sizes[index];
-                    }
-                }, this);
+            elq.listenTo(
+              this.refs.container,
+              'breakpointStatesChanged',
+              function(e, breakpointStates) {
+                  var size = sizes[0];
+                  breakpointStates.width.forEach(function(state, index) {
+                      if (state.over) {
+                          size = sizes[index];
+                      }
+                  }, this);
 
-                this.setState({
-                    size: size
-                });
-            }.bind(this));
-        }
+                  this.setState({
+                      size: size,
+                  });
+              }.bind(this),
+            );
+        },
     });
+
+    ResponsiveBlock.defaultProps = {
+        sizeBreakpoints: {},
+    };
+
+    return ResponsiveBlock;
 }

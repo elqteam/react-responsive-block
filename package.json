@@ -1,9 +1,16 @@
 {
   "name": "react-responsive-block",
+  "description": "",
+  "homepage": "https://github.com/elqteam/react-responsive-block",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/elqteam/react-responsive-block.git"
+  },
   "license": "MIT",
+  "private": false,
   "version": "1.0.0",
   "dependencies": {
-    "elq": "^0.4.1",
+    "elq": "^1.0.0",
     "react-dom": "^15.3.2",
     "react": "^15.3.2"
   },
