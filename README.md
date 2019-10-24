@@ -1,7 +1,7 @@
 # react-responsive-block
-ELQ React Component
+[ELQ](https://github.com/elqteam/elq) React Component
 
-A component that wraps components in order to enable them to be responsive by its width. This is a React-specific high level API of ELQ. This component assumes that all parent elements that have `display:none` are `block`-elemens.
+A component that wraps components in order to enable them to be responsive by its width. This is a React-specific high level API of [ELQ](https://github.com/elqteam/elq). This component assumes that all parent elements that have `display:none` are `block`-elemens.
 
 ##### Example of sizeBreakpoints:
 
